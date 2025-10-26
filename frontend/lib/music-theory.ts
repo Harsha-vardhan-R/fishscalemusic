@@ -41,10 +41,32 @@ export function getScaleNotes(root: string, scaleType: keyof typeof SCALE_INFO):
     return simplifyToSharps(scale.notes);
 }
 
+export function intervalToSemitones(interval: string): number {
+    const semitoneMap: Record<string, number> = {
+      '1P': 0,
+      '2m': 1,
+      '2M': 2,
+      '3m': 3,
+      '3M': 4,
+      '4P': 5,
+      '4A': 6,
+      '5d': 6,
+      '5P': 7, 
+      '6m': 8,
+      '6M': 9,
+      '7m': 10,
+      '7M': 11,
+      '8P': 12,
+    };
+  
+    return semitoneMap[interval] ?? NaN;
+}
+
 export function getScaleIntervals(scaleType: keyof typeof SCALE_INFO): string[] {
     const scaleInfo = SCALE_INFO[scaleType];
     if (!scaleInfo) return [];
 
     const scale = Scale.get(`C ${scaleInfo.tonalName}`);
-    return scale.intervals;
+    const interval_semitones = scale.intervals.map(intervalToSemitones);
+    return scale.intervals.map((interval, index) => [interval, interval_semitones[index]].join(", "));
 }

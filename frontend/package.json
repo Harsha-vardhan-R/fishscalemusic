@@ -9,12 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "tonal": "^6.4.2",
     "framer-motion": "^12.23.24",
     "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "react-guitar-chord": "^1.1.0"
+    "react-guitar-chord": "^1.1.0",
+    "svguitar": "^2.4.1",
+    "tonal": "^6.4.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
