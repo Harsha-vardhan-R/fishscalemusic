@@ -85,7 +85,7 @@ const PianoDisplay: React.FC<PianoDisplayProps> = ({ notes }) => {
         }
         whiteKeyIndex = 0
         for (let octave = startOctave; octave < startOctave + octaveCount; octave++) {
-            const blackKeyPositions = [19, 51, 109, 140, 171]
+            const blackKeyPositions = [18, 51, 108, 140, 171]
             blackKeyPositions.forEach((pos, idx) => {
                 const blackNote = blackKeys[idx]
                 elements.push(renderBlackKey(blackNote, octave, whiteKeyIndex * 30 + pos))
@@ -96,7 +96,7 @@ const PianoDisplay: React.FC<PianoDisplayProps> = ({ notes }) => {
     }
 
     return (
-        <svg width="850" height="150" className="mx-auto">
+        <svg width="840" height="150" className="mx-auto">
             {renderKeys()}
         </svg>
     )

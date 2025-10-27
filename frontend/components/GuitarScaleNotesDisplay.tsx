@@ -8,7 +8,21 @@ interface GuitarDisplayProps {
 
 const GuitarDisplay: React.FC<GuitarDisplayProps> = ({ notes, rootNote }) => {
     const containerRef = useRef<HTMLDivElement>(null)
-    const octaveColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#FFD56B']
+    
+    const noteColors: Record<string, string> = {
+        'C': '#E74C3C', 
+        'C#': '#9B59B6',
+        'D': '#3498DB', 
+        'D#': '#1ABC9C',
+        'E': '#2ECC71', 
+        'F': '#F39C12', 
+        'F#': '#E67E22',
+        'G': '#F1C40F', 
+        'G#': '#16A085',
+        'A': '#8E44AD', 
+        'A#': '#34495E',
+        'B': '#E91E63'  
+    }
 
     useEffect(() => {
         if (!containerRef.current) return
@@ -25,36 +39,22 @@ const GuitarDisplay: React.FC<GuitarDisplayProps> = ({ notes, rootNote }) => {
             return frets
         })
 
-        const rootPositions: number[] = []
-        for (let string = 0; string < 6; string++) {
-            for (let fret = 0; fret <= 20; fret++) {
-                if (stringNotes[string][fret] === rootNote) {
-                    rootPositions.push(fret)
-                }
-            }
-        }
-
-        const uniqueRoots = [...new Set(rootPositions)].sort((a, b) => a - b)
-
-        const getZone = (fret: number): number => {
-            for (let i = 0; i < uniqueRoots.length; i++) {
-                const current = uniqueRoots[i]
-                const next = uniqueRoots[i + 1] || 21
-                const midpoint = (current + next) / 2
-                if (fret < midpoint) return i
-            }
-            return uniqueRoots.length - 1
-        }
-
         const highlights: [number, number, { color?: string; text?: string; shape?: string }?][] = []
 
         for (let string = 0; string < 6; string++) {
             for (let fret = 0; fret <= 20; fret++) {
                 const note = stringNotes[string][fret]
                 if (notes.includes(note)) {
-                    const zone = getZone(fret)
-                    const color = octaveColors[zone % octaveColors.length]
-                    highlights.push([string + 1, fret, { color: (note === rootNote) ? "darkviolet" : color, text: note,  shape: (note === rootNote) ? 'square' : "circle" }])
+                    const color = noteColors[note] || '#999'
+                    highlights.push([
+                        string + 1, 
+                        fret, 
+                        { 
+                            color: (note === rootNote) ? "white" : color, 
+                            text: note,
+                            shape: (note === rootNote) ? 'square' : "circle" 
+                        }
+                    ])
                 }
             }
         }
@@ -66,7 +66,7 @@ const GuitarDisplay: React.FC<GuitarDisplayProps> = ({ notes, rootNote }) => {
                 position: 1,
                 color: '#EEE',
                 fingerTextColor: '#000',
-                fingerTextSize: 20,
+                fingerTextSize: 22,
                 backgroundColor: 'transparent',
                 orientation: 'horizontal',
                 fretMarkers: [3, 5, 7, 9, 12, 15, 17, 19].map(j => j-1),
@@ -84,8 +84,8 @@ const GuitarDisplay: React.FC<GuitarDisplayProps> = ({ notes, rootNote }) => {
     return (
         <div
             ref={containerRef}
-            className="flex justify-center items-center"
-            style={{ width: '100%', maxWidth: '900px', minHeight: '150px', margin: '0 auto' }}
+            className="flex justify-center items-center overflow-scroll"
+            style={{ width: '100%', maxWidth: '850px', minWidth: '850px', minHeight: '150px', margin: '0 auto' }}
         />
     )
 }

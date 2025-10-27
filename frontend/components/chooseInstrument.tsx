@@ -7,7 +7,7 @@ interface InstrumentToggleProps {
 
 export function InstrumentToggle({ instrument, setInstrument }: InstrumentToggleProps) {
   return (
-    <div className="lex items-stretch gap-2 p-2 bg-transparent border border-white/15">
+    <div className="lex items-stretch p-1 bg-transparent border border-white/15">
       <button
         onClick={() => setInstrument('piano')}
         className={`px-2 py-1 font-semibold border ${
