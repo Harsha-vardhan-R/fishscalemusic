@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { SVGuitarChord } from 'svguitar'
 import guitarchords from '@tombatossals/chords-db/lib/guitar.json'
 
@@ -24,6 +24,7 @@ const GuitarChord: React.FC<GuitarChordProps> = ({ chord }) => {
         }
 
         const chart = new SVGuitarChord(containerRef.current)
+        const startFret = chordData.baseFret || 1
 
         const fingers = chordData.frets
             .map((fret: number, string: number) => {
@@ -38,12 +39,12 @@ const GuitarChord: React.FC<GuitarChordProps> = ({ chord }) => {
             .configure({
                 strings: 6,
                 frets: 4,
-                position: chordData.firstFret || 1,
+                position: startFret,
                 color: 'white',
                 backgroundColor: 'transparent',
-                showFretNumbers: true,
+                showFretNumbers: startFret > 1,
                 orientation: 'vertical',
-                mirror: true
+                nutSize: startFret === 1 ? 0.65 : 0
             })
             .chord({
                 fingers: fingers.map((f: any) => [f[0], f[1], {}]),
@@ -61,37 +62,21 @@ const GuitarChord: React.FC<GuitarChordProps> = ({ chord }) => {
 }
 
 function parseChord(chordName: string): [string, string] {
-    const parsedChord = chordName.includes('m') || chordName.includes('dim') || chordName.includes('aug') 
-    ? chordName 
-    : chordName + 'M'
     const match = chordName.match(/^([A-G][#b]?)(.*)$/)
     return match ? [match[1], match[2]] : ['C', '']
 }
 
 function convertNoteToDbFormat(note: string): string {
     const noteMap: Record<string, string> = {
-        'C': 'C',
-        'C#': 'Csharp',
-        'D': 'D',
-        'D#': 'Eb',
-        'E': 'E',
-        'F': 'F',
-        'F#': 'Fsharp',
-        'G': 'G',
-        'G#': 'Ab',
-        'A': 'A',
-        'A#': 'Bb',
-        'B': 'B'
+        'C': 'C', 'C#': 'Csharp', 'D': 'D', 'D#': 'Eb', 'E': 'E', 'F': 'F',
+        'F#': 'Fsharp', 'G': 'G', 'G#': 'Ab', 'A': 'A', 'A#': 'Bb', 'B': 'B'
     }
     return noteMap[note] || note
 }
 
 function mapChordSuffix(suffix: string): string {
     const suffixMap: Record<string, string> = {
-        '': 'major',
-        'm': 'minor',
-        'aug': 'aug',
-        'dim': 'dim'
+        '': 'major', 'm': 'minor', 'aug': 'aug', 'dim': 'dim'
     }
     return suffixMap[suffix] || suffix
 }
@@ -99,7 +84,6 @@ function mapChordSuffix(suffix: string): string {
 function findChordVoicing(root: string, suffix: string): any {
     const chordList = guitarchords.chords[root as keyof typeof guitarchords.chords]
     if (!chordList) return null
-
     const found = chordList.find((c: any) => c.suffix === suffix)
     return found?.positions[0] || null
 }
