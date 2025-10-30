@@ -18,10 +18,10 @@ export function InstrumentToggle({ instrument, setInstrument }: InstrumentToggle
       
       <button
         onClick={() => setInstrument('piano')}
-        className={`relative z-10 px-2 py-1 font-semibold flex-1 transition-colors duration-300 w-28 ${
+        className={`cursor-pointer relative z-10 px-2 py-1 font-semibold flex-1 transition-colors duration-300 w-28 ${
           instrument === 'piano'
             ? 'text-black'
-            : 'text-white hover:text-white/70'
+            : 'text-white hover:text-white/50'
         }`}
       >
         Piano
@@ -29,10 +29,10 @@ export function InstrumentToggle({ instrument, setInstrument }: InstrumentToggle
 
       <button
         onClick={() => setInstrument('guitar')}
-        className={`relative z-10 px-2 py-1 font-semibold flex-1 transition-colors duration-300 ${
+        className={`cursor-pointer relative z-10 px-2 py-1 font-semibold flex-1 transition-colors duration-300 ${
           instrument === 'guitar'
             ? 'text-black'
-            : 'text-white hover:text-white/70'
+            : 'text-white hover:text-white/50'
         }`}
       >
         Fretboard

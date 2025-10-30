@@ -10,8 +10,9 @@ import { InstrumentToggle } from "./chooseInstrument";
 import PianoDisplay from "./PianoScaleNotesDisplay";
 import GuitarDisplay from "./GuitarScaleNotesDisplay";
 import { ShowChordDiagrams } from "./Chords";
+import SongDrawer from "./searchResults";
 
-const endpoint = "http://localhost:5000/api/search";
+const endpoint = "http://localhost:8000/api/chords/search/";
 
 const MainPage: React.FC = () => {
     const notesToShow: string[] = NOTES;
@@ -24,15 +25,13 @@ const MainPage: React.FC = () => {
     const [intervals, setIntervals] = useState<string[]>([]);
     const [chords, setChords] = useState<string[]>([]);
     const [chordIntervals, setChordIntervals] = useState<string[]>([]);
-    const [ chordList, setChordList ] = useState<string[]>([]);
+    const [chordList, setChordList] = useState<string[]>([]);
 
     useEffect(() => {
         const temp: string[] = [];
-
         for (const key in SCALE_INFO) {
             temp.push(SCALE_INFO[key as keyof typeof SCALE_INFO].display);
         }
-
         setScalesToShow(temp);
         if (temp.length > 0) {
             setScale(temp[0]);
@@ -53,99 +52,102 @@ const MainPage: React.FC = () => {
     }, [note, scale]);
 
     const addChord = (chord: string) => {
-        setChordList(prevList => {
-            return [...prevList, chord];
-        });
+        setChordList(prevList => [...prevList, chord]);
     }
 
     const backPressed = () => {
         if (chordList.length === 0) return;
-
         chordList.pop();
         let newList = [...chordList]
         setChordList(newList);
     }
 
-    const [ searchResults, setSearchResults ] = useState<any>(null);
+    const [searchResults, setSearchResults] = useState<any[]>([]);
 
     function search() {
         if (chordList.length < 4) alert("Please select at least 4 chords to search.");
         else fetch(endpoint, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chords: chordList }),
-        }).then(response => setSearchResults(response.text()));
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            setSearchResults(data.results);
+        });
     }
 
     return (
-        <div className="flex flex-col w-screen h-screen">
-            <div className="flex flex-row gap-8 overflow-clip justify-center items-center w-screen h-full">
-                <div className="flex flex-col gap-8 px-4 overflow-visible justify-center items-center min-w-[20%] max-w-[20%]">
-                    <div className="relative flex items-center justify-center">
-                        <span className="absolute -left-16 text-2xl font-semibold text-gray-400 -rotate-90 whitespace-nowrap select-none">
-                            NOTE
-                        </span>
-                        <NoteSelector note={note} notes={notesToShow} setNote={setNote} />
-                    </div>
-                    <rect className="bg-white/10 h-px w-65"></rect>
-                    <div className="relative flex items-center justify-center">
-                        <span className="absolute -left-24 text-2xl font-semibold text-gray-400 -rotate-90 whitespace-nowrap select-none">
-                            SCALE
-                        </span>
-                        <ScaleSelector scale={scale} scales={scalesToShow} setScale={setScale} />
-                    </div>
-                    <rect className="bg-white/10 h-px w-65"></rect>
-                    <div className="relative flex items-center justify-center min-h-16">
-                        <span className="absolute -left-16 text-2xl font-semibold text-gray-400 -rotate-90 select-none">
-                            DISP
-                        </span>
-                        <InstrumentToggle instrument={instrument as 'piano' | 'guitar'} setInstrument={setInstrument as (instrument: 'piano' | 'guitar') => void} />
-                    </div>
-                    <p className="p-0 text-sm italic text-white/25 select-none hover:text-white/50 transition">try scrolling on the options above :)</p>
-                </div>
-                <div className="flex flex-col min-w-2/3 max-w-2/3 justify-center items-center h-full p-6">
-                    <div className="flex flex-col items-center justify-center  p-1 border-white/10 w-full transition-all duration-500 min-h-[40%]">
-                        <span className="text-2xl font-semibold text-gray-400 p-2 select-none">
-                            NOTES IN SCALE
-                        </span>
-                        <NoteDisplayer notes={notesInScale} extra_styles="transition-all duration-100"/>
-                        <IntervalDisplayer notes={intervals} />
-                        {instrument === "piano" ? 
-                            <PianoDisplay notes={notesInScale} /> : 
-                            <GuitarDisplay notes={notesInScale} rootNote={note} />}
-                            <p className="p-1 text-sm italic text-white/25 select-none hover:text-white/50 transition">the colours are just for better contrast across, may not represent how to play the scale</p>
-                    </div>
-                    <span className="h-8"/>
-                    <div className={`flex flex-col items-center justify-center overflow-visible transition-height duration-1000 w-full ${chords.length !== 0 ? " p-2 border-white/10 min-h-[40%]" : ""}`}>
-                        {
-                            chords.length !== 0 &&  
-                            <span className="text-2xl font-semibold text-gray-400 p-2 select-none">
-                                DIATONIC CHORDS
+        <>
+            <SongDrawer results={searchResults} count={15} />
+            <div className="flex flex-col w-screen h-screen">
+                <div className="flex flex-row gap-8 overflow-clip justify-center items-center w-screen h-full z-10">
+                    <div className="flex flex-col gap-8 px-4 overflow-visible justify-center items-center min-w-[20%] max-w-[20%]">
+                        <div className="relative flex items-center justify-center">
+                            <span className="absolute -left-16 text-2xl font-semibold text-gray-400 -rotate-90 whitespace-nowrap select-none">
+                                NOTE
                             </span>
-                        }
-                        {
-                            chords.length !== 0 &&  
-                            <p className="pb-2 text-sm italic text-white/25 select-none hover:text-white/50 transition">click on the chord names to make a list below</p>
-                        }
-                        
-                        <NoteDisplayer notes={chords} onPress={addChord} extra_styles="min-w-34 border-white border border-solid overflow-scroll cursor-pointer active:border-amber-600 active:text-amber-600 select-none transition duration-50 ease-out hover:scale-105 active:scale-100"/>
-                        <IntervalDisplayer notes={chordIntervals} extra_styles="min-w-34"/>
-                        <ShowChordDiagrams chords={chords} instrument={instrument} extra_styles="min-w-34 " />
+                            <NoteSelector note={note} notes={notesToShow} setNote={setNote} />
+                        </div>
+                        <div className="bg-white/10 h-px w-full"></div>
+                        <div className="relative flex items-center justify-center">
+                            <span className="absolute -left-24 text-2xl font-semibold text-gray-400 -rotate-90 whitespace-nowrap select-none">
+                                SCALE
+                            </span>
+                            <ScaleSelector scale={scale} scales={scalesToShow} setScale={setScale} />
+                        </div>
+                        <div className="bg-white/10 h-px w-full"></div>
+                        <div className="relative flex items-center justify-center min-h-16">
+                            <span className="absolute -left-16 text-2xl font-semibold text-gray-400 -rotate-90 select-none">
+                                DISP
+                            </span>
+                            <InstrumentToggle instrument={instrument as 'piano' | 'guitar'} setInstrument={setInstrument as (instrument: 'piano' | 'guitar') => void} />
+                        </div>
+                        <p className="p-0 text-sm italic text-white/25 select-none hover:text-white/50 transition">try scrolling on the options above :)</p>
+                    </div>
+                    <div className="flex flex-col min-w-2/3 max-w-2/3 justify-center items-center h-full p-6">
+                        <div className="flex flex-col items-center justify-center p-1 border-white/10 w-full transition-all duration-500 min-h-[40%]">
+                            <span className="text-2xl font-semibold text-gray-400 p-2 select-none">
+                                NOTES IN SCALE
+                            </span>
+                            <NoteDisplayer notes={notesInScale} extra_styles="transition-all duration-100"/>
+                            <IntervalDisplayer notes={intervals} />
+                            {instrument === "piano" ? 
+                                <PianoDisplay notes={notesInScale} /> : 
+                                <GuitarDisplay notes={notesInScale} rootNote={note} />}
+                            <p className="p-1 text-sm italic text-white/25 select-none hover:text-white/50 transition">the colours are just for better contrast across, may not represent how to play the scale</p>
+                        </div>
+                        <span className="h-8"/>
+                        <div className={`flex flex-col items-center justify-center overflow-visible transition-height duration-1000 w-full ${chords.length !== 0 ? " p-2 border-white/10 min-h-[40%]" : ""}`}>
+                            {
+                                chords.length !== 0 &&  
+                                <span className="text-2xl font-semibold text-gray-400 p-2 select-none">
+                                    DIATONIC CHORDS
+                                </span>
+                            }
+                            {
+                                chords.length !== 0 &&  
+                                <p className="pb-2 text-sm italic text-white/25 select-none hover:text-white/50 transition">click on the chord names to make a list below</p>
+                            }
+                            
+                            <NoteDisplayer notes={chords} onPress={addChord} extra_styles="min-w-34 border-white border border-solid overflow-scroll cursor-pointer active:border-amber-600 active:text-amber-600 select-none transition duration-50 ease-out hover:scale-105 active:scale-100"/>
+                            <IntervalDisplayer notes={chordIntervals} extra_styles="min-w-34"/>
+                            <ShowChordDiagrams chords={chords} instrument={instrument} extra_styles="min-w-34 " />
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div className="flex flex-row h-24 gap-1 p-4 w-full" >
-                <div className="flex-1 flex flex-row p-1 gap-1 border justify-left border-white/25 w-max">
-                    {
-                        chordList.map((chord, index) => (<div key={index} className="flex-1 max-w-22 text-xl m-px p-1 border text-center font-semibold border-white/25 text-white/90">{chord}</ div>))
-                    }
+                <div className="flex flex-row h-24 gap-1 p-4 w-full" >
+                    <div className="flex-1 flex flex-row p-1 gap-1 border justify-left border-white/25 w-max">
+                        {
+                            chordList.map((chord, index) => (<div key={index} className="flex-1 max-w-22 text-xl m-px p-1 border text-center font-semibold border-white/25 text-white/90">{chord}</div>))
+                        }
+                    </div>
+                    <button onClick={() => backPressed()} className="w-28 cursor-pointer text-lg font-bold bg-transparent text-white/90 hover:bg-white hover:text-black border border-white/25 active:bg-white/60 transition-colors duration-200 ease-out"> BACK </button>
+                    <button onClick={() => search()} className="w-28 text-xl cursor-pointer font-bold bg-transparent text-white/90 hover:bg-white hover:text-black border border-white/25 active:bg-white/60 transition-colors duration-200 ease-out"> SEARCH </button>
                 </div>
-                <button onClick={() => backPressed()} className="w-28 text-lg font-bold bg-transparent text-white/90 hover:bg-white hover:text-black border border-white/25 active:bg-white/60 transition-colors duration-200 ease-out"> BACK </button>
-                <button onClick={() => search()} className="w-28 text-xl font-bold bg-transparent text-white/90 hover:bg-white hover:text-black border border-white/25 active:bg-white/60 transition-colors duration-200 ease-out"> SEARCH </button>
             </div>
-        </div>
+        </>
     );
 }
 

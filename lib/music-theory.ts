@@ -81,7 +81,6 @@ export function getScaleChords(root: string, scaleType: keyof typeof SCALE_INFO)
 
     switch (scaleType) {
         case 'major':
-        case 'ionian':
             chords.push(
                 `${scaleNotes[0]}`,
                 `${scaleNotes[1]}m`,
@@ -95,7 +94,6 @@ export function getScaleChords(root: string, scaleType: keyof typeof SCALE_INFO)
             break;
 
         case 'minor':
-        case 'aeolian':
             chords.push(
                 `${scaleNotes[0]}m`,
                 `${scaleNotes[1]}dim`,

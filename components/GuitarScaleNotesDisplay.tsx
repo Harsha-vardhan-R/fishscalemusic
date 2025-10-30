@@ -68,9 +68,8 @@ const GuitarDisplay: React.FC<GuitarDisplayProps> = ({ notes, rootNote }) => {
                 fingerTextColor: '#000',
                 fingerTextSize: 22,
                 backgroundColor: 'transparent',
-                orientation: 'horizontal',
+                orientation: 'horizontal' as any,
                 fretMarkers: [3, 5, 7, 9, 12, 15, 17, 19].map(j => j-1),
-                showFretNumbers: true,
                 fretMarkerColor: '#888'
             })
             .chord({

@@ -20,7 +20,7 @@ export const NoteDisplayer: React.FC<NoteDisplayerProps> = ({ notes, extra_style
                     className={`
                         px-4 py-2 font-bold text-3xl
                         min-w-25 text-center
-                        
+                        text-white/90
                         border border-white/25
                         ${hasSharp(note) ? "border-dashed" : "" } 
                         cursor-default

@@ -42,9 +42,7 @@ const GuitarChord: React.FC<GuitarChordProps> = ({ chord }) => {
                 position: startFret,
                 color: 'white',
                 backgroundColor: 'transparent',
-                showFretNumbers: startFret > 1,
-                orientation: 'vertical',
-                nutSize: startFret === 1 ? 0.65 : 0
+                orientation: 'vertical' as any
             })
             .chord({
                 fingers: fingers.map((f: any) => [f[0], f[1], {}]),
