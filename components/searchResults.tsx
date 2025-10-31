@@ -14,10 +14,12 @@ interface SongResult {
 interface SongDrawerProps {
   results: SongResult[];
   count: number;
+  open: boolean,
+  setOpen: (open: boolean) => void;
 }
 
-export default function SongDrawer({ results = [], count = 0 }: SongDrawerProps) {
-  const [open, setOpen] = useState(false);
+export default function SongDrawer({ results , count , open, setOpen }: SongDrawerProps) {
+
 
   return (
     <Card
@@ -36,7 +38,7 @@ export default function SongDrawer({ results = [], count = 0 }: SongDrawerProps)
       <div className="flex flex-col h-full gap-0 p-0 overflow-y-scroll overflow-x-clip">
         
 
-        {open && (
+        {results !== undefined && results !== null && open && (
           <>
             <div className="sticky px-6 py-2 border-b border-gray-700">
               <h2 className="text-gray-400 text-sm font-semibold">

@@ -12,7 +12,6 @@ import GuitarDisplay from "./GuitarScaleNotesDisplay";
 import { ShowChordDiagrams } from "./Chords";
 import SongDrawer from "./searchResults";
 
-const endpoint = "http://localhost:8000/api/chords/search/";
 
 const MainPage: React.FC = () => {
     const notesToShow: string[] = NOTES;
@@ -26,6 +25,7 @@ const MainPage: React.FC = () => {
     const [chords, setChords] = useState<string[]>([]);
     const [chordIntervals, setChordIntervals] = useState<string[]>([]);
     const [chordList, setChordList] = useState<string[]>([]);
+    const [ open, setOpen ] = useState(false);
 
     useEffect(() => {
         const temp: string[] = [];
@@ -64,23 +64,20 @@ const MainPage: React.FC = () => {
 
     const [searchResults, setSearchResults] = useState<any[]>([]);
 
-    function search() {
-        if (chordList.length < 4) alert("Please select at least 4 chords to search.");
-        else fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chords: chordList }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            setSearchResults(data.results);
+    async function search() {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chords: chordList }),
         });
+
+        const data = await response.json().then(_ => {setOpen(true); return _});
+        setSearchResults(data.results);
     }
 
     return (
         <>
-            <SongDrawer results={searchResults} count={15} />
+            <SongDrawer results={searchResults} count={15} setOpen={setOpen} open={open} />
             <div className="flex flex-col w-screen h-screen">
                 <div className="flex flex-row gap-8 overflow-clip justify-center items-center w-screen h-full z-10">
                     <div className="flex flex-col gap-8 px-4 overflow-visible justify-center items-center min-w-[20%] max-w-[20%]">
@@ -131,13 +128,16 @@ const MainPage: React.FC = () => {
                                 <p className="pb-2 text-sm italic text-white/25 select-none hover:text-white/50 transition">click on the chord names to make a list below</p>
                             }
                             
-                            <NoteDisplayer notes={chords} onPress={addChord} extra_styles="min-w-34 border-white border border-solid overflow-scroll cursor-pointer active:border-amber-600 active:text-amber-600 select-none transition duration-50 ease-out hover:scale-105 active:scale-100"/>
+                            <NoteDisplayer notes={chords} onPress={addChord} 
+                                extra_styles="min-w-34 border-white border border-solid 
+                                    overflow-scroll cursor-pointer active:border-amber-600 active:text-amber-600 
+                                    select-none transition duration-50 ease-out hover:scale-105 active:scale-100"/>
                             <IntervalDisplayer notes={chordIntervals} extra_styles="min-w-34"/>
                             <ShowChordDiagrams chords={chords} instrument={instrument} extra_styles="min-w-34 " />
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-row h-24 gap-1 p-4 w-full" >
+                <div className="sticky bottom-0 flex flex-row h-22 min-h-22 gap-1 p-4 w-full bg-black z-50" >
                     <div className="flex-1 flex flex-row p-1 gap-1 border justify-left border-white/25 w-max">
                         {
                             chordList.map((chord, index) => (<div key={index} className="flex-1 max-w-22 text-xl m-px p-1 border text-center font-semibold border-white/25 text-white/90">{chord}</div>))

@@ -1,0 +1,8 @@
+gunicorn
+numpy
+pandas
+pymongo
+django
+djangorestframework
+scikit-learn
+django-cors-headers
