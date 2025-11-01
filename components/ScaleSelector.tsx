@@ -49,9 +49,9 @@ const ScaleSelector: React.FC<ScaleSelectorProps> = ({ scale, scales, setScale }
             <button onClick={handleUp} className="cursor-pointer bg-transparent italic rounded max-h-6 text-violet-500/75 text-center hover:text-gray-500 active:text-white">
                 prev scale
             </button>
-            <h4 className="font-mono text-white/15 text-lg text-center select-none"> {indx <= 0 ? scales[scales.length-1] : scales[indx-1]} </h4>
-            <h4 className="font-mono text-white text-4xl font-bold text-center text-wrap cursor-n-resize select-none"> {scales[indx]} </h4>
-            <h4 className="font-mono text-white/15 text-lg text-center select-none"> {indx >= (scales.length-1) ? scales[0] : scales[indx+1]} </h4>
+            <h4 className=" text-white/15 text-lg text-center select-none"> {indx <= 0 ? scales[scales.length-1] : scales[indx-1]} </h4>
+            <h4 className=" text-white text-4xl font-bold text-center text-wrap cursor-n-resize select-none"> {scales[indx]} </h4>
+            <h4 className=" text-white/15 text-lg text-center select-none"> {indx >= (scales.length-1) ? scales[0] : scales[indx+1]} </h4>
             <button onClick={handleDown} className="cursor-pointer bg-transparent italic rounded max-h-6 text-violet-500/75 text-center hover:text-gray-500 active:text-white">
                 next scale
             </button>

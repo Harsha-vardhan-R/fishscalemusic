@@ -7,6 +7,36 @@ interface PianoChordProps {
 }
 
 function normalizeChordName(chord: string): string {
+    const doubleSharpsToNote: Record<string, string> = {
+        'C##': 'D',
+        'D##': 'E',
+        'E##': 'F#',
+        'F##': 'G',
+        'G##': 'A',
+        'A##': 'B',
+        'B##': 'C#'
+    }
+
+    const doubleFlatsToNote: Record<string, string> = {
+        'Cbb': 'Bb',
+        'Dbb': 'B',
+        'Ebb': 'D',
+        'Fbb': 'Eb',
+        'Gbb': 'F',
+        'Abb': 'G',
+        'Bbb': 'A'
+    }
+
+    let normalized = chord
+
+    for (const [doubleSharp, note] of Object.entries(doubleSharpsToNote)) {
+        normalized = normalized.replace(doubleSharp, note)
+    }
+
+    for (const [doubleFlat, note] of Object.entries(doubleFlatsToNote)) {
+        normalized = normalized.replace(doubleFlat, note)
+    }
+
     const sharpToFlat: Record<string, string> = {
         'C#': 'Db',
         'D#': 'Eb',
@@ -16,10 +46,10 @@ function normalizeChordName(chord: string): string {
     }
     
     for (const [sharp, flat] of Object.entries(sharpToFlat)) {
-        chord = chord.replace(sharp, flat)
+        normalized = normalized.replace(sharp, flat)
     }
     
-    return chord
+    return normalized
 }
 
 function simplifyToSharps(notes: string[]): string[] {

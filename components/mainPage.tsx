@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { getScaleIntervals, getScaleNotes, NOTES, SCALE_INFO, getScaleChords } from "../lib/music-theory";
+import { getScaleIntervals, getScaleNotes, NOTES, SCALE_INFO, getScaleChords, simplifyToSharps } from "../lib/music-theory";
 
 import NoteSelector from "./NoteSelector";
 import ScaleSelector from "./ScaleSelector";
@@ -111,8 +111,8 @@ const MainPage: React.FC = () => {
                             <NoteDisplayer notes={notesInScale} extra_styles="transition-all duration-100"/>
                             <IntervalDisplayer notes={intervals} />
                             {instrument === "piano" ? 
-                                <PianoDisplay notes={notesInScale} /> : 
-                                <GuitarDisplay notes={notesInScale} rootNote={note} />}
+                                <PianoDisplay notes={simplifyToSharps(notesInScale)} /> : 
+                                <GuitarDisplay notes={simplifyToSharps(notesInScale)} rootNote={simplifyToSharps([note])[0]} />}
                             <p className="p-1 text-sm italic text-white/25 select-none hover:text-white/50 transition">the colours are just for better contrast across, may not represent how to play the scale</p>
                         </div>
                         <span className="h-8"/>
@@ -133,7 +133,7 @@ const MainPage: React.FC = () => {
                                     overflow-scroll cursor-pointer active:border-amber-600 active:text-amber-600 
                                     select-none transition duration-50 ease-out hover:scale-105 active:scale-100"/>
                             <IntervalDisplayer notes={chordIntervals} extra_styles="min-w-34"/>
-                            <ShowChordDiagrams chords={chords} instrument={instrument} extra_styles="min-w-34 " />
+                            <ShowChordDiagrams chords={chords} instrument={instrument} extra_styles="min-w-34" />
                         </div>
                     </div>
                 </div>

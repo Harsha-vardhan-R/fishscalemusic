@@ -1,8 +1,8 @@
 import { Scale, Chord, Mode, Key, Note } from "tonal";
 
 export const NOTES = [
-    "C", "C#", "D", "D#", "E", "F",
-    "F#", "G", "G#", "A", "A#", "B",
+    "C", "C#", "D", "Eb", "E", "F",
+    "F#", "G", "Ab", "A", "Bb", "B",
 ];
 
 export const SCALE_INFO = {
@@ -20,7 +20,7 @@ export const SCALE_INFO = {
     minBlues: { display: "Minor Blues", tonalName: "minor blues" },
 };
 
-function simplifyToSharps(notes: string[]): string[] {
+export function simplifyToSharps(notes: string[]): string[] {
     const enharmonicMap: Record<string, string> = {
         'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
         'E#': 'F', 'B#': 'C', 'Fb': 'E', 'Cb': 'B',
@@ -36,7 +36,7 @@ export function getScaleNotes(root: string, scaleType: keyof typeof SCALE_INFO):
     if (!scaleInfo) return [];
 
     const scale = Scale.get(`${root} ${scaleInfo.tonalName}`);
-    return simplifyToSharps(scale.notes);
+    return scale.notes;
 }
 
 export function intervalToSemitones(interval: string): number {

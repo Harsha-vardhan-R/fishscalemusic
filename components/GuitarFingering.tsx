@@ -14,12 +14,16 @@ const GuitarChord: React.FC<GuitarChordProps> = ({ chord }) => {
         containerRef.current.innerHTML = ''
 
         const [root, suffix] = parseChord(chord)
-        const dbRoot = convertNoteToDbFormat(root)
+        const dbRoot = convertToDbFormat(root)
         const mappedSuffix = mapChordSuffix(suffix)
-        const chordData = findChordVoicing(dbRoot, mappedSuffix)
+        
+        console.log('Input:', chord, '| DB Format:', dbRoot, mappedSuffix)
+
+        let chordData = findChordVoicing(dbRoot, mappedSuffix)
 
         if (!chordData) {
-            containerRef.current.innerHTML = '<p>Chord not found</p>'
+            console.log('Chord not found:', chord)
+            containerRef.current.innerHTML = `<p style="color: #999; font-size: 12px;">Chord not found: ${chord}</p>`
             return
         }
 
@@ -60,21 +64,77 @@ const GuitarChord: React.FC<GuitarChordProps> = ({ chord }) => {
 }
 
 function parseChord(chordName: string): [string, string] {
-    const match = chordName.match(/^([A-G][#b]?)(.*)$/)
+    const match = chordName.match(/^([A-G][#b]{0,2})(.*)$/)
     return match ? [match[1], match[2]] : ['C', '']
 }
 
-function convertNoteToDbFormat(note: string): string {
-    const noteMap: Record<string, string> = {
-        'C': 'C', 'C#': 'Csharp', 'D': 'D', 'D#': 'Eb', 'E': 'E', 'F': 'F',
-        'F#': 'Fsharp', 'G': 'G', 'G#': 'Ab', 'A': 'A', 'A#': 'Bb', 'B': 'B'
+function convertToDbFormat(note: string): string {
+    let normalized = note
+
+    if (normalized.includes('##')) {
+        const baseNote = normalized.replace('##', '')
+        const doubleSharpMap: Record<string, string> = {
+            'C': 'D',
+            'D': 'E',
+            'E': 'F#',
+            'F': 'G',
+            'G': 'A',
+            'A': 'B',
+            'B': 'C#'
+        }
+        normalized = doubleSharpMap[baseNote] || baseNote
     }
-    return noteMap[note] || note
+
+    if (normalized.includes('bb')) {
+        const baseNote = normalized.replace('bb', '')
+        const doubleFlatMap: Record<string, string> = {
+            'C': 'Bb',
+            'D': 'B',
+            'E': 'D',
+            'F': 'Eb',
+            'G': 'F',
+            'A': 'G',
+            'B': 'A'
+        }
+        normalized = doubleFlatMap[baseNote] || baseNote
+    }
+
+    const dbFormatMap: Record<string, string> = {
+        'C': 'C',
+        'D': 'D',
+        'E': 'E',
+        'F': 'F',
+        'G': 'G',
+        'A': 'A',
+        'B': 'B',
+        
+        'C#': 'Csharp',
+        'D#': 'Eb',
+        'F#': 'Fsharp',
+        'G#': 'Ab',
+        'A#': 'Bb',
+        
+        'Db': 'Csharp',
+        'Eb': 'Eb',
+        'Gb': 'Fsharp',
+        'Ab': 'Ab',
+        'Bb': 'Bb',
+        
+        'E#': 'F',
+        'B#': 'C',
+        'Fb': 'E',
+        'Cb': 'B'
+    }
+
+    return dbFormatMap[normalized] || normalized
 }
 
 function mapChordSuffix(suffix: string): string {
     const suffixMap: Record<string, string> = {
-        '': 'major', 'm': 'minor', 'aug': 'aug', 'dim': 'dim'
+        '': 'major',
+        'm': 'minor',
+        'aug': 'aug',
+        'dim': 'dim',
     }
     return suffixMap[suffix] || suffix
 }
@@ -82,6 +142,7 @@ function mapChordSuffix(suffix: string): string {
 function findChordVoicing(root: string, suffix: string): any {
     const chordList = guitarchords.chords[root as keyof typeof guitarchords.chords]
     if (!chordList) return null
+    
     const found = chordList.find((c: any) => c.suffix === suffix)
     return found?.positions[0] || null
 }
