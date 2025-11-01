@@ -67,9 +67,9 @@ const PianoChord: React.FC<PianoChordProps> = ({ chord }) => {
     const containerRef = useRef<HTMLDivElement>(null)
     const rootRef = useRef<ReactDOM.Root | null>(null)
 
-    const whiteKeyHeight = 135
+    const whiteKeyHeight = 105
     const whiteKeyWidth = 22
-    const blackKeyHeight = 60
+    const blackKeyHeight = 55
     const blackKeyWidth = 14
     const fontSize = 10
 
@@ -186,7 +186,8 @@ const PianoChord: React.FC<PianoChordProps> = ({ chord }) => {
     return (
         <div
             ref={containerRef}
-            style={{ display: 'inline-block', rotate: '-90deg', marginTop: '20px' }}
+            // style={{ rotate: '-90deg', marginTop: '20px' }}
+            className='px-0 my-6 -rotate-90'
         />
     )
 }

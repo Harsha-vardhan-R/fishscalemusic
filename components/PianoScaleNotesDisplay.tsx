@@ -5,6 +5,7 @@ interface PianoDisplayProps {
 }
 
 const PianoDisplay: React.FC<PianoDisplayProps> = ({ notes }) => {
+
     const startOctave = 2
     const octaveCount = 4
     const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B']

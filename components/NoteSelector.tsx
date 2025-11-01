@@ -43,12 +43,12 @@ const NoteSelector: React.FC<NoteSelectorProps> = ({ note, notes, setNote }) => 
     };
 
     return (
-        <div className="flex flex-col min-w-32 min-h-1/2" ref={containerRef}>
+        <div className="flex flex-col min-w-32 min-h-1/2">
             <button onClick={handleUp} className="cursor-pointer bg-transparent italic rounded max-h-6 text-violet-500/75 text-center hover:text-gray-500 active:text-white">
                 -1 semitone
             </button>
             <h4 className=" text-white/15 text-2xl text-center select-none"> {indx <= 0 ? notes[notes.length-1] : notes[indx-1]} </h4>
-            <h4 className=" text-white text-8xl font-bold text-center transition-all duration-300 cursor-n-resize select-none"> {notes[indx]} </h4>
+            <h4 className=" text-white text-8xl font-bold text-center transition-all duration-300 cursor-n-resize select-none" ref={containerRef}> {notes[indx]} </h4>
             <h4 className=" text-white/15 text-2xl text-center select-none"> {indx >= (notes.length-1) ? notes[0] : notes[indx+1]} </h4>
             <button onClick={handleDown} className="cursor-pointer bg-transparent italic rounded max-h-6 text-violet-500/75 text-center hover:text-gray-500 active:text-white">
                 +1 semitone

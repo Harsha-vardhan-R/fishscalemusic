@@ -84,7 +84,7 @@ const GuitarDisplay: React.FC<GuitarDisplayProps> = ({ notes, rootNote }) => {
         <div
             ref={containerRef}
             className="flex justify-center items-center overflow-scroll"
-            style={{ width: '100%', maxWidth: '850px', minWidth: '850px', minHeight: '150px', margin: '0 auto' }}
+            style={{ width: '100%', margin: '0 auto' }}
         />
     )
 }

@@ -24,10 +24,10 @@ export function simplifyToSharps(notes: string[]): string[] {
     const enharmonicMap: Record<string, string> = {
         'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
         'E#': 'F', 'B#': 'C', 'Fb': 'E', 'Cb': 'B',
-        'C##': 'D', 'D##': 'E', 'E##': 'F#', 'F##': 'G#', 'G##': 'A#', 'A##': 'B#', 'B##': 'C#',
-        'Cbb': 'A#', 'Dbb': 'C', 'Ebb': 'D', 'Fbb': 'D#', 'Gbb': 'F', 'Abb': 'G', 'Bbb': 'A',
+        'C##': 'D', 'D##': 'E', 'E##': 'F#', 'F##': 'G', 'G##': 'A', 'A##': 'B', 'B##': 'C#',
+        'Cbb': 'Bb', 'Dbb': 'B', 'Ebb': 'D', 'Fbb': 'Eb', 'Gbb': 'F', 'Abb': 'G', 'Bbb': 'A',
     };
-
+    
     return notes.map(note => enharmonicMap[note] || note);
 }
 
@@ -67,6 +67,20 @@ export function getScaleIntervals(scaleType: keyof typeof SCALE_INFO): string[] 
     const scale = Scale.get(`C ${scaleInfo.tonalName}`);
     const interval_semitones = scale.intervals.map(intervalToSemitones);
     return scale.intervals.map((interval, index) => [interval, interval_semitones[index]].join(", "));
+}
+
+function convertChordRootToSharp(chord: string): string {
+    const match = chord.match(/^([A-G][b#]{0,2})(.*)$/);
+    if (!match) return chord;
+
+    const root = simplifyToSharps([match[1]])[0];
+    const suffix = match[2];
+
+    return root + suffix;
+}
+
+export function convertChordsToSharps(chordList: string[]): string[] {
+    return chordList.map(convertChordRootToSharp);
 }
 
 export function getScaleChords(root: string, scaleType: keyof typeof SCALE_INFO): { chords: string[], degrees: string[] } {

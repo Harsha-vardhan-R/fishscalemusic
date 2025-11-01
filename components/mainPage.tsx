@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { getScaleIntervals, getScaleNotes, NOTES, SCALE_INFO, getScaleChords, simplifyToSharps } from "../lib/music-theory";
+import { getScaleIntervals, getScaleNotes, NOTES, SCALE_INFO, getScaleChords, simplifyToSharps, convertChordsToSharps } from "../lib/music-theory";
 
 import NoteSelector from "./NoteSelector";
 import ScaleSelector from "./ScaleSelector";
@@ -11,7 +11,6 @@ import PianoDisplay from "./PianoScaleNotesDisplay";
 import GuitarDisplay from "./GuitarScaleNotesDisplay";
 import { ShowChordDiagrams } from "./Chords";
 import SongDrawer from "./searchResults";
-
 
 const MainPage: React.FC = () => {
     const notesToShow: string[] = NOTES;
@@ -25,7 +24,7 @@ const MainPage: React.FC = () => {
     const [chords, setChords] = useState<string[]>([]);
     const [chordIntervals, setChordIntervals] = useState<string[]>([]);
     const [chordList, setChordList] = useState<string[]>([]);
-    const [ open, setOpen ] = useState(false);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         const temp: string[] = [];
@@ -33,10 +32,13 @@ const MainPage: React.FC = () => {
             temp.push(SCALE_INFO[key as keyof typeof SCALE_INFO].display);
         }
         setScalesToShow(temp);
-        if (temp.length > 0) {
-            setScale(temp[0]);
-        }
     }, []);
+
+    useEffect(() => {
+        if (scalesToShow.length > 0 && !scalesToShow.includes(scale)) {
+            setScale(scalesToShow[0]);
+        }
+    }, [scalesToShow]);
 
     useEffect(() => {
         const scaleKey = Object.keys(SCALE_INFO).find(
@@ -57,9 +59,7 @@ const MainPage: React.FC = () => {
 
     const backPressed = () => {
         if (chordList.length === 0) return;
-        chordList.pop();
-        let newList = [...chordList]
-        setChordList(newList);
+        setChordList(prevList => prevList.slice(0, -1));
     }
 
     const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -68,7 +68,7 @@ const MainPage: React.FC = () => {
         const response = await fetch('/api/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chords: chordList }),
+          body: JSON.stringify({ chords: convertChordsToSharps(chordList) }),
         });
 
         const data = await response.json().then(_ => {setOpen(true); return _});
@@ -78,73 +78,87 @@ const MainPage: React.FC = () => {
     return (
         <>
             <SongDrawer results={searchResults} count={15} setOpen={setOpen} open={open} />
-            <div className="flex flex-col w-screen h-screen">
-                <div className="flex flex-row gap-8 overflow-clip justify-center items-center w-screen h-full z-10">
-                    <div className="flex flex-col gap-8 px-4 overflow-visible justify-center items-center min-w-[20%] max-w-[20%]">
-                        <div className="relative flex items-center justify-center">
-                            <span className="absolute -left-16 text-2xl font-semibold text-gray-400 -rotate-90 whitespace-nowrap select-none">
-                                NOTE
-                            </span>
+            <div className="flex flex-col w-screen min-h-full max-h-full overflow-scroll pb-24">
+                <div className="flex flex-col 2xl:flex-row gap-8 w-full flex-1 px-4 2xl:px-8 py-8 justify-center items-center">
+                    <div className="hidden 2xl:flex flex-col gap-8 justify-center items-center w-1/6">
+                        <div className="flex items-center justify-center w-full">
                             <NoteSelector note={note} notes={notesToShow} setNote={setNote} />
                         </div>
                         <div className="bg-white/10 h-px w-full"></div>
-                        <div className="relative flex items-center justify-center">
-                            <span className="absolute -left-24 text-2xl font-semibold text-gray-400 -rotate-90 whitespace-nowrap select-none">
-                                SCALE
-                            </span>
+                        <div className="flex items-center justify-center w-full">
                             <ScaleSelector scale={scale} scales={scalesToShow} setScale={setScale} />
                         </div>
                         <div className="bg-white/10 h-px w-full"></div>
-                        <div className="relative flex items-center justify-center min-h-16">
-                            <span className="absolute -left-16 text-2xl font-semibold text-gray-400 -rotate-90 select-none">
-                                DISP
-                            </span>
+                        <div className="flex items-center justify-center min-h-16 w-full">
                             <InstrumentToggle instrument={instrument as 'piano' | 'guitar'} setInstrument={setInstrument as (instrument: 'piano' | 'guitar') => void} />
                         </div>
-                        <p className="p-0 text-sm italic text-white/25 select-none hover:text-white/50 transition">try scrolling on the options above :)</p>
                     </div>
-                    <div className="flex flex-col min-w-2/3 max-w-2/3 justify-center items-center h-full p-6">
-                        <div className="flex flex-col items-center justify-center p-1 border-white/10 w-full transition-all duration-500 min-h-[40%]">
-                            <span className="text-2xl font-semibold text-gray-400 p-2 select-none">
+
+                    <div className="2xl:hidden flex flex-col gap-4 w-full">
+                        <div className="flex flex-col gap-3 items-center">
+                            <span className="text-lg font-semibold text-gray-400 p-2 select-none">NOTE</span>
+                            <NoteSelector note={note} notes={notesToShow} setNote={setNote} />
+                            <div className="bg-white/10 h-px w-1/2"></div>
+                            <span className="text-lg font-semibold text-gray-400 p-2 select-none">SCALE</span>
+                            <ScaleSelector scale={scale} scales={scalesToShow} setScale={setScale} />
+                            <div className="bg-white/10 h-px w-1/2"></div>
+                            <span className="text-lg font-semibold text-gray-400 p-2 select-none">DISPLAY</span>
+                            <InstrumentToggle instrument={instrument as 'piano' | 'guitar'} setInstrument={setInstrument as (instrument: 'piano' | 'guitar') => void} />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col w-full 2xl:w-2/3 justify-center items-center gap-6">
+                        <div className="flex flex-col items-center justify-center w-full">
+                            <span className="text-2xl font-semibold text-gray-400 p-1 select-none">
                                 NOTES IN SCALE
                             </span>
                             <NoteDisplayer notes={notesInScale} extra_styles="transition-all duration-100"/>
-                            <IntervalDisplayer notes={intervals} />
-                            {instrument === "piano" ? 
-                                <PianoDisplay notes={simplifyToSharps(notesInScale)} /> : 
-                                <GuitarDisplay notes={simplifyToSharps(notesInScale)} rootNote={simplifyToSharps([note])[0]} />}
-                            <p className="p-1 text-sm italic text-white/25 select-none hover:text-white/50 transition">the colours are just for better contrast across, may not represent how to play the scale</p>
+                            <div className="hidden 2xl:block">
+                                <IntervalDisplayer notes={intervals} />
+                            </div>
+                            <div className="w-full lg:w-4/5 overflow-x-scroll">
+                                {instrument === "piano" ? 
+                                    <PianoDisplay notes={simplifyToSharps(notesInScale)} /> : 
+                                    <GuitarDisplay notes={simplifyToSharps(notesInScale)} rootNote={simplifyToSharps([note])[0]} />
+                                }
+                            </div>
                         </div>
-                        <span className="h-8"/>
-                        <div className={`flex flex-col items-center justify-center overflow-visible transition-height duration-1000 w-full ${chords.length !== 0 ? " p-2 border-white/10 min-h-[40%]" : ""}`}>
-                            {
-                                chords.length !== 0 &&  
-                                <span className="text-2xl font-semibold text-gray-400 p-2 select-none">
+
+                        {chords.length !== 0 && (
+                            <div className="flex flex-col items-center justify-center overflow-visible w-full">
+                                <span className="text-2xl font-semibold text-gray-400 select-none">
                                     DIATONIC CHORDS
                                 </span>
-                            }
-                            {
-                                chords.length !== 0 &&  
                                 <p className="pb-2 text-sm italic text-white/25 select-none hover:text-white/50 transition">click on the chord names to make a list below</p>
-                            }
-                            
-                            <NoteDisplayer notes={chords} onPress={addChord} 
-                                extra_styles="min-w-34 border-white border border-solid 
-                                    overflow-scroll cursor-pointer active:border-amber-600 active:text-amber-600 
-                                    select-none transition duration-50 ease-out hover:scale-105 active:scale-100"/>
-                            <IntervalDisplayer notes={chordIntervals} extra_styles="min-w-34"/>
-                            <ShowChordDiagrams chords={chords} instrument={instrument} extra_styles="min-w-34" />
-                        </div>
+                                <NoteDisplayer notes={chords} onPress={addChord} 
+                                    extra_styles="cursor-pointer active:text-amber-600 select-none transition duration-50 ease-out hover:scale-105 active:scale-100"/>
+                                <div className="hidden 2xl:block">
+                                    <IntervalDisplayer notes={chordIntervals} extra_styles=""/>
+                                </div>
+                                <ShowChordDiagrams chords={chords} instrument={instrument} extra_styles="" />
+                            </div>
+                        )}
                     </div>
                 </div>
-                <div className="sticky bottom-0 flex flex-row h-22 min-h-22 gap-1 p-4 w-full bg-black z-50" >
+
+                <div className="fixed bottom-0 flex flex-col sm:flex-row gap-1 w-screen bg-black z-50 h-16 m-2">
                     <div className="flex-1 flex flex-row p-1 gap-1 border justify-left border-white/25 w-max">
                         {
-                            chordList.map((chord, index) => (<div key={index} className="flex-1 max-w-22 text-xl m-px p-1 border text-center font-semibold border-white/25 text-white/90">{chord}</div>))
+                            chordList.map((chord, index) => (
+                                <div key={index} className="flex-1 max-w-22 text-xl m-px p-2 border text-center font-semibold border-white/25 text-white/90">
+                                    {chord}
+                                </div>
+                            ))
                         }
                     </div>
-                    <button onClick={() => backPressed()} className="w-28 cursor-pointer text-lg font-bold bg-transparent text-white/90 hover:bg-white hover:text-black border border-white/25 active:bg-white/60 transition-colors duration-200 ease-out"> BACK </button>
-                    <button onClick={() => search()} className="w-28 text-xl cursor-pointer font-bold bg-transparent text-white/90 hover:bg-white hover:text-black border border-white/25 active:bg-white/60 transition-colors duration-200 ease-out"> SEARCH </button>
+                    <div className="flex gap-2 w-64">
+                        <button onClick={() => backPressed()} className="flex-1 cursor-pointer text-lg font-bold bg-transparent text-white/90 hover:bg-white hover:text-black active:bg-white/60 transition-colors duration-200 ease-out border border-white/25"> 
+                            BACK 
+                        </button>
+                        <button onClick={() => search()} className="flex-1 text-lg sm:text-xl cursor-pointer font-bold bg-transparent text-white/90 hover:bg-white hover:text-black active:bg-white/60 transition-colors duration-200 ease-out border border-white/25"> 
+                            SEARCH 
+                        </button>
+                    </div>
                 </div>
             </div>
         </>

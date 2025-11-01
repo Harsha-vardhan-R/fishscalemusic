@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface NoteDisplayerProps {
     notes: string[];
@@ -9,22 +9,24 @@ interface NoteDisplayerProps {
 }
 
 export const NoteDisplayer: React.FC<NoteDisplayerProps> = ({ notes, extra_styles = "", onPress = () => {} }) => {
-    const hasSharp = (note: string) => note.includes("#");
 
     return (
-        <div className="flex flex-row gap-5 justify-center">
+        <div className="flex lg:gap-2 flex-row flex-nowrap gap-0 my-4 justify-center w-full px-4">
             {notes.map((note, index) => (
                 <div
                     key={`${note}-${index}`}
                     onClick={() => onPress(note)}
                     className={`
-                        px-4 py-2 font-bold text-3xl
-                        min-w-25 text-center
+                        flex-1 min-w-0 max-w-24
+                        m-0 px-0
+                        py-3 text-center font-bold
+                        text-sm
+                        md:text-xl
+                        lg:text-2xl 
                         text-white/90
                         border border-white/25
-                        ${hasSharp(note) ? "border-dashed" : "" } 
-                        cursor-default
-                        hover:border-white/50 ${extra_styles}
+                        cursor-default hover:border-white/50
+                        ${extra_styles}
                     `}
                 >
                     {note}
@@ -35,19 +37,24 @@ export const NoteDisplayer: React.FC<NoteDisplayerProps> = ({ notes, extra_style
 }
 
 export const IntervalDisplayer: React.FC<NoteDisplayerProps> = ({ notes, extra_styles = "" }) => {
-    const hasSharp = (note: string) => note.includes("#");
+    const itemCount = notes.length;
+    const itemWidth = `calc(100% / ${itemCount} - 0.5rem)`;
 
     return (
-        <div className="flex flex-row gap-5 justify-center">
+        <div className="flex flex-row gap-2 justify-center w-full flex-nowrap">
             {notes.map((note, index) => (
                 <div
                     key={`${note}-${index}`}
+                    style={{ width: itemWidth }}
                     className={`
-                        px-4 py-2 text-lg
-                        min-w-25 text-center
+                        shrink-0
+                        min-w-24 max-w-24
+                        text-lg text-center
                         transition-all duration-100
                         text-gray-600 ${extra_styles}
-                        cursor-default`}>
+                        cursor-default
+                    `}
+                >
                     {note}
                 </div>
             ))}
